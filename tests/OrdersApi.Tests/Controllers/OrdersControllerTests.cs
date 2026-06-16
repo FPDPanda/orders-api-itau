@@ -118,4 +118,32 @@ public class OrdersControllerTests
 
         Assert.IsType<NotFoundResult>(result);
     }
+
+    [Fact]
+    public async Task UpdateStatus_ShouldReturnOk_WhenOrderExists()
+    {
+        var orderId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.Confirmed };
+
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<UpdateOrderStatusCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(order);
+
+        var result = await _controller.UpdateStatus(orderId, new UpdateOrderStatusRequest(OrderStatus.Confirmed));
+
+        var ok = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(order, ok.Value);
+    }
+
+    [Fact]
+    public async Task UpdateStatus_ShouldReturnNotFound_WhenOrderDoesNotExist()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<UpdateOrderStatusCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Order?)null);
+
+        var result = await _controller.UpdateStatus(Guid.NewGuid(), new UpdateOrderStatusRequest(OrderStatus.Shipped));
+
+        Assert.IsType<NotFoundResult>(result);
+    }
 }

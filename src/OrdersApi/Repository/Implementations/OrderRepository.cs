@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrdersApi.Data;
+using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
 using OrdersApi.Repository.Interfaces;
 
@@ -64,5 +65,19 @@ public class OrderRepository : IOrderRepository
         order.Products.Remove(product);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<Order?> UpdateStatusAsync(Guid orderId, OrderStatus status)
+    {
+        var order = await _context.Orders
+            .Include(o => o.Products)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order is null)
+            return null;
+
+        order.Status = status;
+        await _context.SaveChangesAsync();
+        return order;
     }
 }
