@@ -29,11 +29,13 @@ tests/
 
 ## Getting Started
 
-### 1. Start PostgreSQL with Docker
+### 1. Start PostgreSQL and run migrations
 
 ```bash
 start-db.bat
 ```
+
+This starts the PostgreSQL Docker container, waits for it to be ready, and runs `V1__InitialCreate.sql` automatically. The migration is idempotent — safe to run multiple times.
 
 Make sure `appsettings.Development.json` has a matching connection string:
 
@@ -43,23 +45,39 @@ Make sure `appsettings.Development.json` has a matching connection string:
 }
 ```
 
-### 2. Seed the database
-
-```bash
-docker exec -i orders-postgres psql -U postgres -d ordersdb < src/OrdersApi/Data/Migrations/V1__InitialCreate.sql
-```
-
-This creates the schema and inserts two sample orders with products.
-
-### 3. Run the API
+### 2. Run the API
 
 ```bash
 cd src/OrdersApi
 dotnet run
 ```
 
-The API will be available at `http://localhost:5000`.  
-Migrations are applied automatically on startup in the `Development` environment.
+The API will be available at `http://localhost:5000`.
+
+## Authentication
+
+Authentication is controlled by the `Jwt:Enabled` flag in `appsettings.Development.json`. Set it to `false` to run without auth (Swagger will also hide the Bearer button):
+
+```json
+"Jwt": {
+  "Enabled": true,
+  "Key": "dev-only-secret-key-min-32-chars!!"
+}
+```
+
+When enabled, all endpoints require a JWT Bearer token. To generate one for local testing, go to [jwt.io](https://jwt.io), keep the default header and payload, and set the **Verify Signature** secret to:
+
+```
+dev-only-secret-key-min-32-chars!!
+```
+
+Copy the generated token and pass it in the `Authorization` header:
+
+```
+Authorization: Bearer <token>
+```
+
+In production, set `Jwt__Enabled` and `Jwt__Key` via environment variables.
 
 ## Running Tests
 
@@ -131,8 +149,8 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 
 | # | Description | Affected Files | Severity | Fixed On | PR |
 |---|-------------|---------------|----------|----------|----|
-| BL-01 | Client sends `OriginalValue` and `DebitedValue` in the request body — any caller can set the price to zero | `OrdersController`, `CreateOrderCommand`, `CreateOrderHandler` | Critical | 2026-06-16 |  |
-| BL-02 | No authentication or authorization — all endpoints are publicly accessible | `Program.cs`, all controllers | Critical | | |
+| BL-01 | Client sends `OriginalValue` and `DebitedValue` in the request body — any caller can set the price to zero | `OrdersController`, `CreateOrderCommand`, `CreateOrderHandler` | Critical | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/5 |
+| BL-02 | No authentication or authorization — all endpoints are publicly accessible | `Program.cs`, all controllers | Critical | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/6 |
 | BL-03 | No status transition endpoint — orders are stuck at `New` forever | `OrdersController`, `Order.cs` | High | | |
 | BL-04 | No status transition guards — the flow `New → Confirmed → Shipped → Completed` is not enforced | `Order.cs` | High | | |
 | BL-05 | Items can be added or removed from an order regardless of its status (e.g. a `Shipped` order) | `OrdersController`, `OrderRepository` | High | | |

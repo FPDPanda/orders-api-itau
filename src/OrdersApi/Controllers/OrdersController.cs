@@ -1,10 +1,12 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Queries.Orders;
 
 namespace OrdersApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class OrdersController : ControllerBase
