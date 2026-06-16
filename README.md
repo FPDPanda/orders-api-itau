@@ -155,7 +155,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | BL-03 | No status transition endpoint — orders are stuck at `New` forever | `OrdersController`, `Order.cs` | High | 2026-06-16 | |
 | BL-04 | No status transition guards — the flow `New → Confirmed → Shipped → Completed` is not enforced | `Order.cs` | High | 2026-06-16 | |
 | BL-05 | Items can be added or removed from an order regardless of its status (e.g. a `Shipped` order) | `OrdersController`, `OrderRepository` | High | 2026-06-16 | |
-| BL-06 | Discount logic is entirely client-side — no discount table, no rules per `OrderType`, no server-side calculation | `CreateOrderCommand`, `CreateOrderHandler` | High | | |
+| BL-06 | Discount logic is entirely client-side — no discount table, no rules per `OrderType`, no server-side calculation | `CreateOrderCommand`, `CreateOrderHandler` | High | 2026-06-16 | |
 | BL-07 | No quantity on order line items — `Products` is a flat list of IDs, impossible to order 2 units of the same product | `Order.cs`, `OrderRepository` | High | | |
 | BL-08 | No price snapshot on order line items — updating a product price retroactively changes historical order totals | `Order.cs`, `OrderRepository` | High | | |
 | BL-09 | `User` is a free-text string with no validation against an identity system and can be spoofed | `Order.cs`, `CreateOrderRequest` | High | | |
