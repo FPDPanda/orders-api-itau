@@ -146,4 +146,16 @@ public class OrdersControllerTests
 
         Assert.IsType<NotFoundResult>(result);
     }
+
+    [Fact]
+    public async Task UpdateStatus_ShouldReturnUnprocessableEntity_WhenTransitionIsInvalid()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<UpdateOrderStatusCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Cannot transition order from New to Shipped."));
+
+        var result = await _controller.UpdateStatus(Guid.NewGuid(), new UpdateOrderStatusRequest(OrderStatus.Shipped));
+
+        Assert.IsType<UnprocessableEntityObjectResult>(result);
+    }
 }

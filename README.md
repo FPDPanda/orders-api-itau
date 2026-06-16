@@ -153,7 +153,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | BL-01 | Client sends `OriginalValue` and `DebitedValue` in the request body — any caller can set the price to zero | `OrdersController`, `CreateOrderCommand`, `CreateOrderHandler` | Critical | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/5 |
 | BL-02 | No authentication or authorization — all endpoints are publicly accessible | `Program.cs`, all controllers | Critical | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/6 |
 | BL-03 | No status transition endpoint — orders are stuck at `New` forever | `OrdersController`, `Order.cs` | High | 2026-06-16 | |
-| BL-04 | No status transition guards — the flow `New → Confirmed → Shipped → Completed` is not enforced | `Order.cs` | High | | |
+| BL-04 | No status transition guards — the flow `New → Confirmed → Shipped → Completed` is not enforced | `Order.cs` | High | 2026-06-16 | |
 | BL-05 | Items can be added or removed from an order regardless of its status (e.g. a `Shipped` order) | `OrdersController`, `OrderRepository` | High | | |
 | BL-06 | Discount logic is entirely client-side — no discount table, no rules per `OrderType`, no server-side calculation | `CreateOrderCommand`, `CreateOrderHandler` | High | | |
 | BL-07 | No quantity on order line items — `Products` is a flat list of IDs, impossible to order 2 units of the same product | `Order.cs`, `OrderRepository` | High | | |

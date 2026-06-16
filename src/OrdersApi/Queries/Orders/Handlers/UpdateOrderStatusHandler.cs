@@ -15,6 +15,13 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
 
     public async Task<Order?> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
     {
+        var order = await _orderRepository.GetByIdAsync(request.OrderId);
+        if (order is null)
+            return null;
+
+        if (!order.CanTransitionTo(request.Status))
+            throw new InvalidOperationException($"Cannot transition order from {order.Status} to {request.Status}.");
+
         return await _orderRepository.UpdateStatusAsync(request.OrderId, request.Status);
     }
 }

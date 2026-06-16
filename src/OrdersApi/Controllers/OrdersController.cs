@@ -64,11 +64,18 @@ public class OrdersController : ControllerBase
     [HttpPatch("{orderId:guid}/status")]
     public async Task<IActionResult> UpdateStatus(Guid orderId, [FromBody] UpdateOrderStatusRequest request)
     {
-        var order = await _mediator.Send(new UpdateOrderStatusCommand(orderId, request.Status));
-        if (order is null)
-            return NotFound();
+        try
+        {
+            var order = await _mediator.Send(new UpdateOrderStatusCommand(orderId, request.Status));
+            if (order is null)
+                return NotFound();
 
-        return Ok(order);
+            return Ok(order);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return UnprocessableEntity(ex.Message);
+        }
     }
 }
 
