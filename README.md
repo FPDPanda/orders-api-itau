@@ -61,6 +61,22 @@ dotnet run
 The API will be available at `http://localhost:5000`.  
 Migrations are applied automatically on startup in the `Development` environment.
 
+## Running Tests
+
+### Run tests only
+
+```bash
+dotnet test tests/OrdersApi.Tests
+```
+
+### Run tests with coverage report
+
+```bash
+run-tests.bat
+```
+
+This runs all unit tests, generates an HTML coverage report under `coverage/report/`, and opens it automatically in the browser. The `coverage/` folder is git-ignored.
+
 ## API Endpoints
 
 ### Orders
