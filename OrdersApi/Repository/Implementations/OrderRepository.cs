@@ -26,6 +26,7 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid orderId)
     {
         return await _context.Orders
+            .Include(o => o.Products)
             .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
@@ -35,23 +36,26 @@ public class OrderRepository : IOrderRepository
         if (order is null)
             return null;
 
-        if (!order.Products.Contains(itemId))
-            order.Products.Add(itemId);
+        var product = await _context.Products.FindAsync(itemId);
+        if (product is null)
+            return null;
 
+        product.OrderId = orderId;
         await _context.SaveChangesAsync();
-        return order;
+
+        return await GetByIdAsync(orderId);
     }
 
     public async Task<bool> RemoveItemAsync(Guid orderId, Guid itemId)
     {
-        var order = await _context.Orders.FindAsync(orderId);
-        if (order is null)
+        var product = await _context.Products
+            .FirstOrDefaultAsync(p => p.Id == itemId && p.OrderId == orderId);
+
+        if (product is null)
             return false;
 
-        var removed = order.Products.Remove(itemId);
-        if (removed)
-            await _context.SaveChangesAsync();
-
-        return removed;
+        product.OrderId = null;
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

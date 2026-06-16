@@ -23,8 +23,10 @@ public class OrdersDbContext : DbContext
             entity.Property(o => o.Status).HasConversion<string>();
             entity.Property(o => o.OriginalValue).HasColumnType("decimal(18,2)");
             entity.Property(o => o.DebitedValue).HasColumnType("decimal(18,2)");
-            entity.Property(o => o.Products)
-                  .HasColumnType("uuid[]");
+            entity.HasMany(o => o.Products)
+                  .WithOne()
+                  .HasForeignKey(p => p.OrderId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Product>(entity =>

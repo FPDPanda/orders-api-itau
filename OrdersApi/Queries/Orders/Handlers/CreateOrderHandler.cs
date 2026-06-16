@@ -21,7 +21,6 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
             Type = request.Type,
             OriginalValue = request.OriginalValue,
             DebitedValue = request.DebitedValue,
-            Products = request.Products,
             User = request.User,
             Status = OrderStatus.New,
             TrackingURL = request.TrackingURL

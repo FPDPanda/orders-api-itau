@@ -23,7 +23,6 @@ public class OrdersController : ControllerBase
             request.Type,
             request.OriginalValue,
             request.DebitedValue,
-            request.Products,
             request.User,
             request.TrackingURL);
 
@@ -66,6 +65,5 @@ public record CreateOrderRequest(
     OrderType Type,
     decimal OriginalValue,
     decimal DebitedValue,
-    List<Guid> Products,
     string User,
     string TrackingURL);
