@@ -53,7 +53,8 @@ VALUES
      549.50,
      'maria.santos@email.com',
      'Shipped',
-     'https://tracking.example.com/order/002');
+     'https://tracking.example.com/order/002')
+ON CONFLICT ("Id") DO NOTHING;
 
 -- Products (linked to orders above)
 INSERT INTO "Products" ("Id", "ImageURL", "Description", "Price", "OrderId")
@@ -80,4 +81,5 @@ VALUES
      'https://images.example.com/cap-red.png',
      'Red baseball cap, one size',
      250.00,
-     'a1b2c3d4-0002-0002-0002-000000000002');
+     'a1b2c3d4-0002-0002-0002-000000000002')
+ON CONFLICT ("Id") DO NOTHING;
