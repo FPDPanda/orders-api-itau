@@ -10,22 +10,23 @@ namespace OrdersApi.Tests.Handlers;
 
 public class CreateOrderHandlerTests
 {
-    private readonly Mock<IOrderRepository> _repositoryMock = new();
+    private readonly Mock<IOrderRepository> _orderRepositoryMock = new();
+    private readonly Mock<IProductRepository> _productRepositoryMock = new();
     private readonly CreateOrderHandler _handler;
 
     public CreateOrderHandlerTests()
     {
-        _handler = new CreateOrderHandler(_repositoryMock.Object);
+        _handler = new CreateOrderHandler(_orderRepositoryMock.Object, _productRepositoryMock.Object);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnOrderWithStatusNew()
     {
-        var command = new CreateOrderCommand(OrderType.Standard, 100m, 90m, "user@test.com", "https://tracking.com");
+        var product = new Product { Id = Guid.NewGuid(), Price = 50m };
+        var command = new CreateOrderCommand(OrderType.Standard, [product.Id], "user@test.com", "https://tracking.com");
 
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<Order>()))
-            .ReturnsAsync((Order o) => o);
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds)).ReturnsAsync([product]);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -33,49 +34,77 @@ public class CreateOrderHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldMapAllCommandFieldsToOrder()
+    public async Task Handle_ShouldCalculateValuesFromProductPrices()
     {
-        var command = new CreateOrderCommand(OrderType.Express, 200m, 180m, "user@test.com", "https://tracking.com");
+        var p1 = new Product { Id = Guid.NewGuid(), Price = 100m };
+        var p2 = new Product { Id = Guid.NewGuid(), Price = 49.90m };
+        var command = new CreateOrderCommand(OrderType.Express, [p1.Id, p2.Id], "user@test.com", "");
 
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<Order>()))
-            .ReturnsAsync((Order o) => o);
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds)).ReturnsAsync([p1, p2]);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(OrderType.Express, result.Type);
-        Assert.Equal(200m, result.OriginalValue);
-        Assert.Equal(180m, result.DebitedValue);
+        Assert.Equal(149.90m, result.OriginalValue);
+        Assert.Equal(149.90m, result.DebitedValue);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldLinkProductsToOrder()
+    {
+        var product = new Product { Id = Guid.NewGuid(), Price = 30m };
+        var command = new CreateOrderCommand(OrderType.Standard, [product.Id], "user@test.com", "");
+
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds)).ReturnsAsync([product]);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Single(result.Products);
+        Assert.Equal(product.Id, result.Products[0].Id);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldMapRemainingCommandFieldsToOrder()
+    {
+        var product = new Product { Id = Guid.NewGuid(), Price = 10m };
+        var command = new CreateOrderCommand(OrderType.Subscription, [product.Id], "user@test.com", "https://tracking.com");
+
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds)).ReturnsAsync([product]);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal(OrderType.Subscription, result.Type);
         Assert.Equal("user@test.com", result.User);
         Assert.Equal("https://tracking.com", result.TrackingURL);
     }
 
     [Fact]
-    public async Task Handle_ShouldCallRepositoryCreateExactlyOnce()
+    public async Task Handle_ShouldThrow_WhenAnyProductIdDoesNotExist()
     {
-        var command = new CreateOrderCommand(OrderType.Standard, 100m, 100m, "user@test.com", "");
+        var knownId = Guid.NewGuid();
+        var unknownId = Guid.NewGuid();
+        var command = new CreateOrderCommand(OrderType.Standard, [knownId, unknownId], "user@test.com", "");
 
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<Order>()))
-            .ReturnsAsync(new Order());
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds))
+            .ReturnsAsync([new Product { Id = knownId, Price = 10m }]);
 
-        await _handler.Handle(command, CancellationToken.None);
-
-        _repositoryMock.Verify(r => r.CreateAsync(It.IsAny<Order>()), Times.Once);
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _handler.Handle(command, CancellationToken.None));
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnOrderReturnedByRepository()
+    public async Task Handle_ShouldCallOrderRepositoryCreateOnce()
     {
-        var expected = new Order { Id = Guid.NewGuid(), User = "repo-user" };
-        var command = new CreateOrderCommand(OrderType.Subscription, 50m, 50m, "user@test.com", "");
+        var product = new Product { Id = Guid.NewGuid(), Price = 10m };
+        var command = new CreateOrderCommand(OrderType.Standard, [product.Id], "user@test.com", "");
 
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<Order>()))
-            .ReturnsAsync(expected);
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(command.ProductIds)).ReturnsAsync([product]);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync(new Order());
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal(expected.Id, result.Id);
+        _orderRepositoryMock.Verify(r => r.CreateAsync(It.IsAny<Order>()), Times.Once);
     }
 }

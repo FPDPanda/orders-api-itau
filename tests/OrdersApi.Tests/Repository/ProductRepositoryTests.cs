@@ -129,4 +129,32 @@ public class ProductRepositoryTests
 
         Assert.Equal(orderId, result.OrderId);
     }
+
+    [Fact]
+    public async Task GetByIdsAsync_ShouldReturnOnlyMatchingProducts()
+    {
+        await using var context = CreateContext();
+        var repo = new ProductRepository(context);
+
+        var p1 = await repo.CreateAsync(new Product { Description = "A", Price = 10m });
+        var p2 = await repo.CreateAsync(new Product { Description = "B", Price = 20m });
+        await repo.CreateAsync(new Product { Description = "C", Price = 30m });
+
+        var result = await repo.GetByIdsAsync([p1.Id, p2.Id]);
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, p => p.Id == p1.Id);
+        Assert.Contains(result, p => p.Id == p2.Id);
+    }
+
+    [Fact]
+    public async Task GetByIdsAsync_ShouldReturnEmptyList_WhenNoIdsMatch()
+    {
+        await using var context = CreateContext();
+        var repo = new ProductRepository(context);
+
+        var result = await repo.GetByIdsAsync([Guid.NewGuid(), Guid.NewGuid()]);
+
+        Assert.Empty(result);
+    }
 }
