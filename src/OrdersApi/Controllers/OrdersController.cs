@@ -60,6 +60,16 @@ public class OrdersController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPatch("{orderId:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid orderId, [FromBody] UpdateOrderStatusRequest request)
+    {
+        var order = await _mediator.Send(new UpdateOrderStatusCommand(orderId, request.Status));
+        if (order is null)
+            return NotFound();
+
+        return Ok(order);
+    }
 }
 
 public record CreateOrderRequest(
@@ -67,3 +77,5 @@ public record CreateOrderRequest(
     IReadOnlyList<Guid> ProductIds,
     string User,
     string TrackingURL);
+
+public record UpdateOrderStatusRequest(OrderStatus Status);

@@ -179,4 +179,29 @@ public class OrderRepositoryTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ShouldUpdateStatus_WhenOrderExists()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var created = await repo.CreateAsync(NewOrder());
+
+        var result = await repo.UpdateStatusAsync(created.Id, OrderStatus.Confirmed);
+
+        Assert.NotNull(result);
+        Assert.Equal(OrderStatus.Confirmed, result.Status);
+    }
+
+    [Fact]
+    public async Task UpdateStatusAsync_ShouldReturnNull_WhenOrderDoesNotExist()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var result = await repo.UpdateStatusAsync(Guid.NewGuid(), OrderStatus.Shipped);
+
+        Assert.Null(result);
+    }
 }
