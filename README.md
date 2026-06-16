@@ -5,19 +5,21 @@ A simple .NET 8 Orders API with PostgreSQL (Docker) and MediatR.
 ## Project Structure
 
 ```
-OrdersApi/
-├── Controllers/        # API Controllers (Orders, Products)
-├── Domain/
-│   ├── Models/         # Domain entities (Order, Product)
-│   └── Enums/          # Enumerations (OrderType, OrderStatus)
-├── Queries/
-│   ├── Orders/         # Order commands, queries and handlers
-│   └── Products/       # Product commands, queries and handlers
-├── Repository/
-│   ├── Interfaces/     # Repository contracts
-│   └── Implementations/# EF Core repository implementations
-├── Data/               # DbContext
-└── Migrations/         # EF Core migrations
+src/
+└── OrdersApi/
+    ├── Controllers/        # API Controllers (Orders, Products)
+    ├── Domain/
+    │   ├── Models/         # Domain entities (Order, Product)
+    │   └── Enums/          # Enumerations (OrderType, OrderStatus)
+    ├── Queries/
+    │   ├── Orders/         # Order commands, queries and handlers
+    │   └── Products/       # Product commands, queries and handlers
+    ├── Repository/
+    │   ├── Interfaces/     # Repository contracts
+    │   └── Implementations/# EF Core repository implementations
+    ├── Data/               # DbContext
+    └── Migrations/         # EF Core migrations
+tests/
 ```
 
 ## Prerequisites
@@ -33,14 +35,28 @@ OrdersApi/
 docker compose up -d
 ```
 
-### 2. Run the API
+### 2. Apply database migrations
 
 ```bash
-cd OrdersApi
+cd src/OrdersApi
+dotnet ef database update
+```
+
+### 3. Run the API
+
+```bash
+cd src/OrdersApi
 dotnet run
 ```
 
 The API will be available at `http://localhost:5000`.
+
+### Creating a new migration
+
+```bash
+cd src/OrdersApi
+dotnet ef migrations add <MigrationName>
+```
 
 ## API Endpoints
 
