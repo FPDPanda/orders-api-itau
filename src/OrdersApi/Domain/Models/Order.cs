@@ -13,4 +13,12 @@ public class Order
     public string User { get; set; } = string.Empty;
     public OrderStatus Status { get; set; }
     public string TrackingURL { get; set; } = string.Empty;
+
+    public bool CanTransitionTo(OrderStatus newStatus) => (Status, newStatus) switch
+    {
+        (OrderStatus.New, OrderStatus.Confirmed) => true,
+        (OrderStatus.Confirmed, OrderStatus.Shipped) => true,
+        (OrderStatus.Shipped, OrderStatus.Completed) => true,
+        _ => false
+    };
 }
