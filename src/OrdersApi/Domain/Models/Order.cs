@@ -21,4 +21,6 @@ public class Order
         (OrderStatus.Shipped, OrderStatus.Completed) => true,
         _ => false
     };
+
+    public bool CanModifyItems() => Status == OrderStatus.New;
 }

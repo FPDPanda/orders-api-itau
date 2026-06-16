@@ -14,6 +14,13 @@ public class RemoveOrderItemHandler : IRequestHandler<RemoveOrderItemCommand, bo
 
     public async Task<bool> Handle(RemoveOrderItemCommand request, CancellationToken cancellationToken)
     {
+        var order = await _repository.GetByIdAsync(request.OrderId);
+        if (order is null)
+            return false;
+
+        if (!order.CanModifyItems())
+            throw new InvalidOperationException($"Cannot modify items on an order with status {order.Status}.");
+
         return await _repository.RemoveItemAsync(request.OrderId, request.ItemId);
     }
 }
