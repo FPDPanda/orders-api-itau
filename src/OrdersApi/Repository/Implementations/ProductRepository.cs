@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using OrdersApi.Data;
 using OrdersApi.Domain.Models;
 using OrdersApi.Repository.Interfaces;
@@ -24,6 +25,13 @@ public class ProductRepository : IProductRepository
     public async Task<Product?> GetByIdAsync(Guid productId)
     {
         return await _context.Products.FindAsync(productId);
+    }
+
+    public async Task<List<Product>> GetByIdsAsync(IEnumerable<Guid> productIds)
+    {
+        return await _context.Products
+            .Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
     }
 
     public async Task<Product?> UpdateAsync(Guid productId, Product product)

@@ -23,7 +23,7 @@ public class OrdersControllerTests
     public async Task CreateOrder_ShouldReturnCreatedAtAction()
     {
         var order = new Order { Id = Guid.NewGuid() };
-        var request = new CreateOrderRequest(OrderType.Standard, 100m, 90m, "user@test.com", "https://tracking.com");
+        var request = new CreateOrderRequest(OrderType.Standard, [Guid.NewGuid()], "user@test.com", "https://tracking.com");
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<CreateOrderCommand>(), It.IsAny<CancellationToken>()))

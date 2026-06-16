@@ -102,13 +102,13 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 ```json
 {
   "type": "Standard",
-  "originalValue": 10.0,
-  "debitedValue": 8.50,
-  "products": ["c100f88f-aedb-428a-a9ee-f8cf3b10af66"],
+  "productIds": ["c100f88f-aedb-428a-a9ee-f8cf3b10af66"],
   "user": "jean@itau.com",
   "trackingURL": "https://www.guidgenerator.com"
 }
 ```
+
+> `originalValue` and `debitedValue` are calculated server-side from the sum of the provided product prices.
 
 **Order Types:** `Standard`, `Express`, `Subscription`
 **Order Statuses:** `New`, `Confirmed`, `Shipped`, `Completed`
@@ -131,7 +131,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 
 | # | Description | Affected Files | Severity | Fixed On | PR |
 |---|-------------|---------------|----------|----------|----|
-| BL-01 | Client sends `OriginalValue` and `DebitedValue` in the request body — any caller can set the price to zero | `OrdersController`, `CreateOrderCommand`, `CreateOrderHandler` | Critical | | |
+| BL-01 | Client sends `OriginalValue` and `DebitedValue` in the request body — any caller can set the price to zero | `OrdersController`, `CreateOrderCommand`, `CreateOrderHandler` | Critical | 2026-06-16 |  |
 | BL-02 | No authentication or authorization — all endpoints are publicly accessible | `Program.cs`, all controllers | Critical | | |
 | BL-03 | No status transition endpoint — orders are stuck at `New` forever | `OrdersController`, `Order.cs` | High | | |
 | BL-04 | No status transition guards — the flow `New → Confirmed → Shipped → Completed` is not enforced | `Order.cs` | High | | |

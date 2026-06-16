@@ -5,7 +5,6 @@ namespace OrdersApi.Queries.Orders;
 
 public record CreateOrderCommand(
     OrdersApi.Domain.Enums.OrderType Type,
-    decimal OriginalValue,
-    decimal DebitedValue,
+    IReadOnlyList<Guid> ProductIds,
     string User,
     string TrackingURL) : IRequest<Order>;
