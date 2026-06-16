@@ -32,7 +32,9 @@ public class OrderRepository : IOrderRepository
 
     public async Task<Order?> AddItemAsync(Guid orderId, Guid itemId)
     {
-        var order = await _context.Orders.FindAsync(orderId);
+        var order = await _context.Orders
+            .Include(o => o.Products)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
         if (order is null)
             return null;
 
@@ -40,21 +42,26 @@ public class OrderRepository : IOrderRepository
         if (product is null)
             return null;
 
-        product.OrderId = orderId;
+        order.Products.Add(product);
         await _context.SaveChangesAsync();
 
-        return await GetByIdAsync(orderId);
+        return order;
     }
 
     public async Task<bool> RemoveItemAsync(Guid orderId, Guid itemId)
     {
-        var product = await _context.Products
-            .FirstOrDefaultAsync(p => p.Id == itemId && p.OrderId == orderId);
+        var order = await _context.Orders
+            .Include(o => o.Products)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
 
+        if (order is null)
+            return false;
+
+        var product = order.Products.FirstOrDefault(p => p.Id == itemId);
         if (product is null)
             return false;
 
-        product.OrderId = null;
+        order.Products.Remove(product);
         await _context.SaveChangesAsync();
         return true;
     }
