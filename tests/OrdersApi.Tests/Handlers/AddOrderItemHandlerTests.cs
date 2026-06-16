@@ -1,5 +1,6 @@
 using Moq;
 using Xunit;
+using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
 using OrdersApi.Queries.Orders;
 using OrdersApi.Queries.Orders.Handlers;
@@ -18,15 +19,15 @@ public class AddOrderItemHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnUpdatedOrder_WhenItemAdded()
+    public async Task Handle_ShouldReturnUpdatedOrder_WhenOrderIsNew()
     {
         var orderId = Guid.NewGuid();
         var itemId = Guid.NewGuid();
-        var expected = new Order { Id = orderId };
+        var order = new Order { Id = orderId, Status = OrderStatus.New };
+        var updated = new Order { Id = orderId, Status = OrderStatus.New };
 
-        _repositoryMock
-            .Setup(r => r.AddItemAsync(orderId, itemId))
-            .ReturnsAsync(expected);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _repositoryMock.Setup(r => r.AddItemAsync(orderId, itemId)).ReturnsAsync(updated);
 
         var result = await _handler.Handle(new AddOrderItemCommand(orderId, itemId), CancellationToken.None);
 
@@ -40,27 +41,54 @@ public class AddOrderItemHandlerTests
         var orderId = Guid.NewGuid();
         var itemId = Guid.NewGuid();
 
-        _repositoryMock
-            .Setup(r => r.AddItemAsync(orderId, itemId))
-            .ReturnsAsync((Order?)null);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order?)null);
 
         var result = await _handler.Handle(new AddOrderItemCommand(orderId, itemId), CancellationToken.None);
 
         Assert.Null(result);
     }
 
+    [Theory]
+    [InlineData(OrderStatus.Confirmed)]
+    [InlineData(OrderStatus.Shipped)]
+    [InlineData(OrderStatus.Completed)]
+    public async Task Handle_ShouldThrow_WhenOrderStatusIsNotNew(OrderStatus status)
+    {
+        var orderId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = status };
+
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(new AddOrderItemCommand(orderId, Guid.NewGuid()), CancellationToken.None));
+    }
+
     [Fact]
-    public async Task Handle_ShouldPassCorrectIdsToRepository()
+    public async Task Handle_ShouldCallAddItemAsync_WhenOrderIsNew()
     {
         var orderId = Guid.NewGuid();
         var itemId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.New };
 
-        _repositoryMock
-            .Setup(r => r.AddItemAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
-            .ReturnsAsync((Order?)null);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _repositoryMock.Setup(r => r.AddItemAsync(orderId, itemId)).ReturnsAsync(new Order());
 
         await _handler.Handle(new AddOrderItemCommand(orderId, itemId), CancellationToken.None);
 
         _repositoryMock.Verify(r => r.AddItemAsync(orderId, itemId), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldNotCallAddItemAsync_WhenOrderStatusIsNotNew()
+    {
+        var orderId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.Confirmed };
+
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(new AddOrderItemCommand(orderId, Guid.NewGuid()), CancellationToken.None));
+
+        _repositoryMock.Verify(r => r.AddItemAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
     }
 }

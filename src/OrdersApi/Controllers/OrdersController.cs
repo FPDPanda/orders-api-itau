@@ -44,21 +44,35 @@ public class OrdersController : ControllerBase
     [HttpPut("{orderId:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> AddItem(Guid orderId, Guid itemId)
     {
-        var order = await _mediator.Send(new AddOrderItemCommand(orderId, itemId));
-        if (order is null)
-            return NotFound();
+        try
+        {
+            var order = await _mediator.Send(new AddOrderItemCommand(orderId, itemId));
+            if (order is null)
+                return NotFound();
 
-        return Ok(order);
+            return Ok(order);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return UnprocessableEntity(ex.Message);
+        }
     }
 
     [HttpDelete("{orderId:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> RemoveItem(Guid orderId, Guid itemId)
     {
-        var removed = await _mediator.Send(new RemoveOrderItemCommand(orderId, itemId));
-        if (!removed)
-            return NotFound();
+        try
+        {
+            var removed = await _mediator.Send(new RemoveOrderItemCommand(orderId, itemId));
+            if (!removed)
+                return NotFound();
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return UnprocessableEntity(ex.Message);
+        }
     }
 
     [HttpPatch("{orderId:guid}/status")]

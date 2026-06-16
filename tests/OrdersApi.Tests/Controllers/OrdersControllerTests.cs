@@ -120,6 +120,30 @@ public class OrdersControllerTests
     }
 
     [Fact]
+    public async Task AddItem_ShouldReturnUnprocessableEntity_WhenOrderStatusIsNotNew()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<AddOrderItemCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Cannot modify items on an order with status Confirmed."));
+
+        var result = await _controller.AddItem(Guid.NewGuid(), Guid.NewGuid());
+
+        Assert.IsType<UnprocessableEntityObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task RemoveItem_ShouldReturnUnprocessableEntity_WhenOrderStatusIsNotNew()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<RemoveOrderItemCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Cannot modify items on an order with status Shipped."));
+
+        var result = await _controller.RemoveItem(Guid.NewGuid(), Guid.NewGuid());
+
+        Assert.IsType<UnprocessableEntityObjectResult>(result);
+    }
+
+    [Fact]
     public async Task UpdateStatus_ShouldReturnOk_WhenOrderExists()
     {
         var orderId = Guid.NewGuid();

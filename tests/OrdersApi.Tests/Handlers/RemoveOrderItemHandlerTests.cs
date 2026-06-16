@@ -1,5 +1,7 @@
 using Moq;
 using Xunit;
+using OrdersApi.Domain.Enums;
+using OrdersApi.Domain.Models;
 using OrdersApi.Queries.Orders;
 using OrdersApi.Queries.Orders.Handlers;
 using OrdersApi.Repository.Interfaces;
@@ -17,14 +19,14 @@ public class RemoveOrderItemHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnTrue_WhenItemRemoved()
+    public async Task Handle_ShouldReturnTrue_WhenOrderIsNewAndItemRemoved()
     {
         var orderId = Guid.NewGuid();
         var itemId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.New };
 
-        _repositoryMock
-            .Setup(r => r.RemoveItemAsync(orderId, itemId))
-            .ReturnsAsync(true);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _repositoryMock.Setup(r => r.RemoveItemAsync(orderId, itemId)).ReturnsAsync(true);
 
         var result = await _handler.Handle(new RemoveOrderItemCommand(orderId, itemId), CancellationToken.None);
 
@@ -32,32 +34,58 @@ public class RemoveOrderItemHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFalse_WhenOrderOrItemDoesNotExist()
+    public async Task Handle_ShouldReturnFalse_WhenOrderDoesNotExist()
     {
         var orderId = Guid.NewGuid();
-        var itemId = Guid.NewGuid();
 
-        _repositoryMock
-            .Setup(r => r.RemoveItemAsync(orderId, itemId))
-            .ReturnsAsync(false);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync((Order?)null);
 
-        var result = await _handler.Handle(new RemoveOrderItemCommand(orderId, itemId), CancellationToken.None);
+        var result = await _handler.Handle(new RemoveOrderItemCommand(orderId, Guid.NewGuid()), CancellationToken.None);
 
         Assert.False(result);
     }
 
+    [Theory]
+    [InlineData(OrderStatus.Confirmed)]
+    [InlineData(OrderStatus.Shipped)]
+    [InlineData(OrderStatus.Completed)]
+    public async Task Handle_ShouldThrow_WhenOrderStatusIsNotNew(OrderStatus status)
+    {
+        var orderId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = status };
+
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(new RemoveOrderItemCommand(orderId, Guid.NewGuid()), CancellationToken.None));
+    }
+
     [Fact]
-    public async Task Handle_ShouldPassCorrectIdsToRepository()
+    public async Task Handle_ShouldCallRemoveItemAsync_WhenOrderIsNew()
     {
         var orderId = Guid.NewGuid();
         var itemId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.New };
 
-        _repositoryMock
-            .Setup(r => r.RemoveItemAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
-            .ReturnsAsync(false);
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+        _repositoryMock.Setup(r => r.RemoveItemAsync(orderId, itemId)).ReturnsAsync(true);
 
         await _handler.Handle(new RemoveOrderItemCommand(orderId, itemId), CancellationToken.None);
 
         _repositoryMock.Verify(r => r.RemoveItemAsync(orderId, itemId), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldNotCallRemoveItemAsync_WhenOrderStatusIsNotNew()
+    {
+        var orderId = Guid.NewGuid();
+        var order = new Order { Id = orderId, Status = OrderStatus.Shipped };
+
+        _repositoryMock.Setup(r => r.GetByIdAsync(orderId)).ReturnsAsync(order);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(new RemoveOrderItemCommand(orderId, Guid.NewGuid()), CancellationToken.None));
+
+        _repositoryMock.Verify(r => r.RemoveItemAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
     }
 }

@@ -35,4 +35,21 @@ public class OrderTests
         var order = new Order { Status = from };
         Assert.False(order.CanTransitionTo(to));
     }
+
+    [Fact]
+    public void CanModifyItems_ShouldReturnTrue_WhenStatusIsNew()
+    {
+        var order = new Order { Status = OrderStatus.New };
+        Assert.True(order.CanModifyItems());
+    }
+
+    [Theory]
+    [InlineData(OrderStatus.Confirmed)]
+    [InlineData(OrderStatus.Shipped)]
+    [InlineData(OrderStatus.Completed)]
+    public void CanModifyItems_ShouldReturnFalse_WhenStatusIsNotNew(OrderStatus status)
+    {
+        var order = new Order { Status = status };
+        Assert.False(order.CanModifyItems());
+    }
 }
