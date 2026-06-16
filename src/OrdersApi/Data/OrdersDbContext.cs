@@ -11,6 +11,7 @@ public class OrdersDbContext : DbContext
 
     public DbSet<Order> Orders { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Discount> Discounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,6 +34,14 @@ public class OrdersDbContext : DbContext
         {
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
+        });
+
+        modelBuilder.Entity<Discount>(entity =>
+        {
+            entity.HasKey(d => d.Id);
+            entity.Property(d => d.OrderType).HasConversion<string>();
+            entity.Property(d => d.DiscountType).HasConversion<string>();
+            entity.Property(d => d.Rate).HasColumnType("decimal(10,4)");
         });
     }
 }

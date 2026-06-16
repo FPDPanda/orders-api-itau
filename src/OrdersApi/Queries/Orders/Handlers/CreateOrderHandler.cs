@@ -9,11 +9,16 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IDiscountRepository _discountRepository;
 
-    public CreateOrderHandler(IOrderRepository orderRepository, IProductRepository productRepository)
+    public CreateOrderHandler(
+        IOrderRepository orderRepository,
+        IProductRepository productRepository,
+        IDiscountRepository discountRepository)
     {
-        _orderRepository = orderRepository;
-        _productRepository = productRepository;
+        _orderRepository    = orderRepository;
+        _productRepository  = productRepository;
+        _discountRepository = discountRepository;
     }
 
     public async Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -24,17 +29,19 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
         if (missingIds.Count > 0)
             throw new ArgumentException($"Products not found: {string.Join(", ", missingIds)}");
 
-        var totalValue = products.Sum(p => p.Price);
+        var originalValue = products.Sum(p => p.Price);
+        var discount      = await _discountRepository.GetActiveByOrderTypeAsync(request.Type);
+        var debitedValue  = discount?.Apply(originalValue) ?? originalValue;
 
         var order = new Order
         {
-            Type = request.Type,
-            Products = products,
-            OriginalValue = totalValue,
-            DebitedValue = totalValue,
-            User = request.User,
-            Status = OrderStatus.New,
-            TrackingURL = request.TrackingURL
+            Type          = request.Type,
+            Products      = products,
+            OriginalValue = originalValue,
+            DebitedValue  = debitedValue,
+            User          = request.User,
+            Status        = OrderStatus.New,
+            TrackingURL   = request.TrackingURL
         };
 
         return await _orderRepository.CreateAsync(order);
