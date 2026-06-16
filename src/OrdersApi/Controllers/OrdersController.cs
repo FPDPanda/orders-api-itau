@@ -21,8 +21,7 @@ public class OrdersController : ControllerBase
     {
         var command = new CreateOrderCommand(
             request.Type,
-            request.OriginalValue,
-            request.DebitedValue,
+            request.ProductIds,
             request.User,
             request.TrackingURL);
 
@@ -63,7 +62,6 @@ public class OrdersController : ControllerBase
 
 public record CreateOrderRequest(
     OrderType Type,
-    decimal OriginalValue,
-    decimal DebitedValue,
+    IReadOnlyList<Guid> ProductIds,
     string User,
     string TrackingURL);
