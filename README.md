@@ -32,15 +32,24 @@ tests/
 ### 1. Start PostgreSQL with Docker
 
 ```bash
-docker compose up -d
+start-db.bat
 ```
 
-### 2. Apply database migrations
+Make sure `appsettings.Development.json` has a matching connection string:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=ordersdb;Username=postgres;Password=postgres"
+}
+```
+
+### 2. Seed the database
 
 ```bash
-cd src/OrdersApi
-dotnet ef database update
+docker exec -i orders-postgres psql -U postgres -d ordersdb < src/OrdersApi/Data/Migrations/V1__InitialCreate.sql
 ```
+
+This creates the schema and inserts two sample orders with products.
 
 ### 3. Run the API
 
@@ -49,14 +58,8 @@ cd src/OrdersApi
 dotnet run
 ```
 
-The API will be available at `http://localhost:5000`.
-
-### Creating a new migration
-
-```bash
-cd src/OrdersApi
-dotnet ef migrations add <MigrationName>
-```
+The API will be available at `http://localhost:5000`.  
+Migrations are applied automatically on startup in the `Development` environment.
 
 ## API Endpoints
 
@@ -127,7 +130,7 @@ dotnet ef migrations add <MigrationName>
 | BL-13 | `DebitedValue` can exceed `OriginalValue` or be negative with no validation | `CreateOrderRequest` | Medium | | |
 | BL-14 | `OrderType` enum has no behaviour — no price modifiers, SLA rules, or discount tiers differ between types | `OrderType.cs`, `CreateOrderHandler` | Medium | | |
 | BL-15 | No listing endpoints — no way to list orders by user/status or browse products | `OrdersController`, `ProductsController` | Medium | | |
-| BL-16 | Migration is never applied — `Program.cs` resolves the `DbContext` but never calls `Database.Migrate()` | `Program.cs` | Medium | | |
+| BL-16 | Migration is never applied — `Program.cs` resolves the `DbContext` but never calls `Database.Migrate()` | `Program.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/2 |
 
 ---
 
