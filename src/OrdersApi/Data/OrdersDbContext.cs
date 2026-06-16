@@ -11,6 +11,7 @@ public class OrdersDbContext : DbContext
 
     public DbSet<Order> Orders { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Discount> Discounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,10 +25,19 @@ public class OrdersDbContext : DbContext
             entity.Property(o => o.Status).HasConversion<string>();
             entity.Property(o => o.OriginalValue).HasColumnType("decimal(18,2)");
             entity.Property(o => o.DebitedValue).HasColumnType("decimal(18,2)");
-            entity.HasMany(o => o.Products)
-                  .WithOne()
-                  .HasForeignKey(p => p.OrderId)
-                  .OnDelete(DeleteBehavior.SetNull);
+            entity.HasMany(o => o.Items)
+                  .WithOne(i => i.Order)
+                  .HasForeignKey(i => i.OrderId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(i => i.Id);
+            entity.HasOne(i => i.Product)
+                  .WithMany()
+                  .HasForeignKey(i => i.ProductId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Product>(entity =>

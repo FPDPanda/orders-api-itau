@@ -119,18 +119,6 @@ public class ProductRepositoryTests
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldPreserveOrderId()
-    {
-        await using var context = CreateContext();
-        var repo = new ProductRepository(context);
-        var orderId = Guid.NewGuid();
-
-        var result = await repo.CreateAsync(new Product { Description = "Test", Price = 10m, OrderId = orderId });
-
-        Assert.Equal(orderId, result.OrderId);
-    }
-
-    [Fact]
     public async Task GetByIdsAsync_ShouldReturnOnlyMatchingProducts()
     {
         await using var context = CreateContext();
