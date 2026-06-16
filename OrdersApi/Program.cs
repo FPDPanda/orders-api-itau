@@ -28,7 +28,6 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-    db.Database.Migrate();
 }
 
 // Configure the HTTP request pipeline.
