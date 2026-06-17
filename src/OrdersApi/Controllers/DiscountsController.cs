@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrdersApi.Domain.Enums;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Discounts;
 
 namespace OrdersApi.Controllers;
@@ -22,7 +23,7 @@ public class DiscountsController : ControllerBase
     public async Task<IActionResult> GetDiscounts()
     {
         var discounts = await _mediator.Send(new GetDiscountsQuery());
-        return Ok(discounts);
+        return Ok(discounts.Select(DiscountResponse.From).ToList());
     }
 
     [HttpPost]
@@ -33,7 +34,7 @@ public class DiscountsController : ControllerBase
             request.DiscountType,
             request.Rate));
 
-        return CreatedAtAction(nameof(GetDiscounts), new { }, discount);
+        return CreatedAtAction(nameof(GetDiscounts), new { }, DiscountResponse.From(discount));
     }
 
     [HttpDelete("{id:guid}")]

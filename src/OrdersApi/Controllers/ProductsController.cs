@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Products;
 
 namespace OrdersApi.Controllers;
@@ -28,7 +29,7 @@ public class ProductsController : ControllerBase
             request.Price);
 
         var product = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetProduct), new { productId = product.Id }, product);
+        return CreatedAtAction(nameof(GetProduct), new { productId = product.Id }, ProductResponse.From(product));
     }
 
     [HttpGet("{productId:guid}")]
@@ -38,7 +39,7 @@ public class ProductsController : ControllerBase
         if (product is null)
             return NotFound();
 
-        return Ok(product);
+        return Ok(ProductResponse.From(product));
     }
 
     [HttpPut("{productId:guid}")]
@@ -54,7 +55,7 @@ public class ProductsController : ControllerBase
         if (product is null)
             return NotFound();
 
-        return Ok(product);
+        return Ok(ProductResponse.From(product));
     }
 
     [HttpDelete("{productId:guid}")]

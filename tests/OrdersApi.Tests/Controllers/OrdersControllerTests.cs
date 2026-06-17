@@ -5,6 +5,7 @@ using Xunit;
 using OrdersApi.Controllers;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Orders;
 
 namespace OrdersApi.Tests.Controllers;
@@ -33,7 +34,8 @@ public class OrdersControllerTests
 
         var created = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(201, created.StatusCode);
-        Assert.Equal(order, created.Value);
+        var dto = Assert.IsType<OrderResponse>(created.Value);
+        Assert.Equal(order.Id, dto.Id);
     }
 
     [Fact]
@@ -49,7 +51,8 @@ public class OrdersControllerTests
         var result = await _controller.GetOrder(orderId);
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(order, ok.Value);
+        var dto = Assert.IsType<OrderResponse>(ok.Value);
+        Assert.Equal(orderId, dto.Id);
     }
 
     [Fact]
@@ -80,7 +83,8 @@ public class OrdersControllerTests
         var result = await _controller.AddItem(orderId, itemId);
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(order, ok.Value);
+        var dto = Assert.IsType<OrderResponse>(ok.Value);
+        Assert.Equal(orderId, dto.Id);
     }
 
     [Fact]
@@ -156,7 +160,9 @@ public class OrdersControllerTests
         var result = await _controller.UpdateStatus(orderId, new UpdateOrderStatusRequest(OrderStatus.Confirmed));
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(order, ok.Value);
+        var dto = Assert.IsType<OrderResponse>(ok.Value);
+        Assert.Equal(orderId, dto.Id);
+        Assert.Equal("Confirmed", dto.Status);
     }
 
     [Fact]
