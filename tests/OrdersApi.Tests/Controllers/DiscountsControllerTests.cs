@@ -5,6 +5,7 @@ using Xunit;
 using OrdersApi.Controllers;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Discounts;
 
 namespace OrdersApi.Tests.Controllers;
@@ -34,7 +35,9 @@ public class DiscountsControllerTests
         var result = await _controller.GetDiscounts();
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(discounts, ok.Value);
+        var dtos = Assert.IsType<List<DiscountResponse>>(ok.Value);
+        Assert.Single(dtos);
+        Assert.Equal(discounts[0].Id, dtos[0].Id);
     }
 
     [Fact]
@@ -58,7 +61,10 @@ public class DiscountsControllerTests
 
         var created = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(201, created.StatusCode);
-        Assert.Equal(discount, created.Value);
+        var dto = Assert.IsType<DiscountResponse>(created.Value);
+        Assert.Equal(discount.Id, dto.Id);
+        Assert.Equal("Subscription", dto.OrderType);
+        Assert.Equal(-0.10m, dto.Rate);
     }
 
     [Fact]

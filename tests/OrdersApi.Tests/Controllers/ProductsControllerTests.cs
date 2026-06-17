@@ -4,6 +4,7 @@ using Moq;
 using Xunit;
 using OrdersApi.Controllers;
 using OrdersApi.Domain.Models;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Products;
 
 namespace OrdersApi.Tests.Controllers;
@@ -21,7 +22,7 @@ public class ProductsControllerTests
     [Fact]
     public async Task CreateProduct_ShouldReturnCreatedAtAction()
     {
-        var product = new Product { Id = Guid.NewGuid() };
+        var product = new Product { Id = Guid.NewGuid(), Name = "Blue T-Shirt", ImageURL = "https://img.com/a.png", Description = "Cotton t-shirt", Price = 49.90m };
         var request = new CreateProductRequest("Blue T-Shirt", "https://img.com/a.png", "Cotton t-shirt, size M", 49.90m);
 
         _mediatorMock
@@ -32,14 +33,16 @@ public class ProductsControllerTests
 
         var created = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(201, created.StatusCode);
-        Assert.Equal(product, created.Value);
+        var dto = Assert.IsType<ProductResponse>(created.Value);
+        Assert.Equal(product.Id, dto.Id);
+        Assert.Equal(product.Name, dto.Name);
     }
 
     [Fact]
     public async Task GetProduct_ShouldReturnOk_WhenFound()
     {
         var productId = Guid.NewGuid();
-        var product = new Product { Id = productId };
+        var product = new Product { Id = productId, Name = "Cap", Price = 30m };
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<GetProductByIdQuery>(), It.IsAny<CancellationToken>()))
@@ -48,7 +51,8 @@ public class ProductsControllerTests
         var result = await _controller.GetProduct(productId);
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(product, ok.Value);
+        var dto = Assert.IsType<ProductResponse>(ok.Value);
+        Assert.Equal(productId, dto.Id);
     }
 
     [Fact]
@@ -67,7 +71,7 @@ public class ProductsControllerTests
     public async Task UpdateProduct_ShouldReturnOk_WhenFound()
     {
         var productId = Guid.NewGuid();
-        var updated = new Product { Id = productId };
+        var updated = new Product { Id = productId, Name = "Sneaker", Price = 10m };
         var request = new CreateProductRequest("Sneaker", "url", "desc", 10m);
 
         _mediatorMock
@@ -77,7 +81,8 @@ public class ProductsControllerTests
         var result = await _controller.UpdateProduct(productId, request);
 
         var ok = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal(updated, ok.Value);
+        var dto = Assert.IsType<ProductResponse>(ok.Value);
+        Assert.Equal(productId, dto.Id);
     }
 
     [Fact]

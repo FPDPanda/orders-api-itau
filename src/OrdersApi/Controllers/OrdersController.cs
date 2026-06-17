@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OrdersApi.Domain.Enums;
+using OrdersApi.Dtos;
 using OrdersApi.Queries.Orders;
 
 namespace OrdersApi.Controllers;
@@ -29,7 +30,7 @@ public class OrdersController : ControllerBase
             request.TrackingURL);
 
         var order = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetOrder), new { orderId = order.Id }, order);
+        return CreatedAtAction(nameof(GetOrder), new { orderId = order.Id }, OrderResponse.From(order));
     }
 
     [HttpGet("{orderId:guid}")]
@@ -39,7 +40,7 @@ public class OrdersController : ControllerBase
         if (order is null)
             return NotFound();
 
-        return Ok(order);
+        return Ok(OrderResponse.From(order));
     }
 
     [HttpPut("{orderId:guid}/items/{itemId:guid}")]
@@ -51,7 +52,7 @@ public class OrdersController : ControllerBase
             if (order is null)
                 return NotFound();
 
-            return Ok(order);
+            return Ok(OrderResponse.From(order));
         }
         catch (InvalidOperationException ex)
         {
@@ -85,7 +86,7 @@ public class OrdersController : ControllerBase
             if (order is null)
                 return NotFound();
 
-            return Ok(order);
+            return Ok(OrderResponse.From(order));
         }
         catch (InvalidOperationException ex)
         {
