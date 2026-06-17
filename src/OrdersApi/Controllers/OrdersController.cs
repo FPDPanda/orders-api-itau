@@ -43,7 +43,7 @@ public class OrdersController : ControllerBase
         return Ok(OrderResponse.From(order));
     }
 
-    [HttpPut("{orderId:guid}/items/{itemId:guid}")]
+    [HttpPost("{orderId:guid}/items/{itemId:guid}")]
     public async Task<IActionResult> AddItem(Guid orderId, Guid itemId)
     {
         try
