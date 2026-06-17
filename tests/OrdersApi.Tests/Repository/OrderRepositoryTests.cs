@@ -110,7 +110,31 @@ public class OrderRepositoryTests
         Assert.NotNull(result);
         Assert.Single(result.Items);
         Assert.Equal(product.Id, result.Items[0].ProductId);
-        Assert.Equal(1, result.Items[0].Quantity);
+        Assert.Equal(1,          result.Items[0].Quantity);
+        Assert.Equal(80m,        result.Items[0].UnitPrice);
+    }
+
+    [Fact]
+    public async Task AddItemAsync_ShouldNotChangeUnitPrice_WhenProductAlreadyInOrder()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var product = new Product { Id = Guid.NewGuid(), Description = "Cap", Price = 25m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var order = NewOrder();
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 1, UnitPrice = 20m });
+        var created = await repo.CreateAsync(order);
+
+        product.Price = 99m;
+        await context.SaveChangesAsync();
+
+        var result = await repo.AddItemAsync(created.Id, product.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(20m, result.Items[0].UnitPrice);
     }
 
     [Fact]
