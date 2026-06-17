@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations;
 namespace OrdersApi.Requests;
 
 public record CreateProductRequest(
-    [Required]
+    [param: Required]
     string Name,
-    [Required]
+    [param: Required]
     string ImageURL,
-    [Required]
+    [param: Required]
     string Description,
-    [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
+    [param: Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
     decimal Price);

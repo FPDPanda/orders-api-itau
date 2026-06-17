@@ -2,6 +2,10 @@
 
 A simple .NET 8 Orders API with PostgreSQL (Docker) and MediatR.
 
+## Walkthrough
+
+[![Loom walkthrough](https://cdn.loom.com/sessions/thumbnails/4b72b781870944bc8a0276c4117203e8-with-play.gif)](https://www.loom.com/share/4b72b781870944bc8a0276c4117203e8)
+
 ## Project Structure
 
 ```
