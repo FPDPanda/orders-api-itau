@@ -7,6 +7,7 @@ using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Orders;
+using OrdersApi.Requests;
 
 namespace OrdersApi.Tests.Controllers;
 

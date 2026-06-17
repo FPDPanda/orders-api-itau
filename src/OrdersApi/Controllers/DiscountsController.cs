@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OrdersApi.Domain.Enums;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Discounts;
+using OrdersApi.Requests;
 
 namespace OrdersApi.Controllers;
 
@@ -47,5 +47,3 @@ public class DiscountsController : ControllerBase
         return NoContent();
     }
 }
-
-public record CreateDiscountRequest(OrderType OrderType, DiscountType DiscountType, decimal Rate);
