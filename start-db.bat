@@ -19,4 +19,5 @@ docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data
 docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V2__AddDiscounts.sql
 docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V3__AddOrderItems.sql
 docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V4__AddProductName.sql
+docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V5__AddOrderItemUnitPrice.sql
 echo Done.

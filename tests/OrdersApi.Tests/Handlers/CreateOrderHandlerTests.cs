@@ -122,6 +122,24 @@ public class CreateOrderHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldSnapshotUnitPriceFromProductPrice()
+    {
+        var product = new Product { Id = Guid.NewGuid(), Price = 75m };
+        var command = new CreateOrderCommand(OrderType.Standard, [product.Id, product.Id], "user@test.com", "");
+
+        _productRepositoryMock.Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyList<Guid>>())).ReturnsAsync([product]);
+        _discountRepositoryMock.Setup(r => r.GetActiveByOrderTypeAsync(It.IsAny<OrderType>())).ReturnsAsync((Discount?)null);
+        _orderRepositoryMock.Setup(r => r.CreateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Single(result.Items);
+        Assert.Equal(75m,  result.Items[0].UnitPrice);
+        Assert.Equal(2,    result.Items[0].Quantity);
+        Assert.Equal(150m, result.OriginalValue);
+    }
+
+    [Fact]
     public async Task Handle_ShouldCallOrderRepositoryCreateOnce()
     {
         var product = new Product { Id = Guid.NewGuid(), Price = 10m };

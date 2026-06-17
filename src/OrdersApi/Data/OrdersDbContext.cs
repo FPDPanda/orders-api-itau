@@ -34,6 +34,7 @@ public class OrdersDbContext : DbContext
         modelBuilder.Entity<OrderItem>(entity =>
         {
             entity.HasKey(i => i.Id);
+            entity.Property(i => i.UnitPrice).HasColumnType("decimal(18,2)");
             entity.HasOne(i => i.Product)
                   .WithMany()
                   .HasForeignKey(i => i.ProductId)

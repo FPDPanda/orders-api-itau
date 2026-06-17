@@ -54,7 +54,8 @@ public class OrderRepository : IOrderRepository
             {
                 ProductId = productId,
                 Product   = product,
-                Quantity  = 1
+                Quantity  = 1,
+                UnitPrice = product.Price
             });
         }
 

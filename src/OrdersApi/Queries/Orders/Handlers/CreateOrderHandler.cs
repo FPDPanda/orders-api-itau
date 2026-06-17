@@ -40,10 +40,11 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
         {
             ProductId = kv.Key,
             Product   = productById[kv.Key],
-            Quantity  = kv.Value
+            Quantity  = kv.Value,
+            UnitPrice = productById[kv.Key].Price
         }).ToList();
 
-        var originalValue = items.Sum(i => i.Product.Price * i.Quantity);
+        var originalValue = items.Sum(i => i.UnitPrice * i.Quantity);
         var discount      = await _discountRepository.GetActiveByOrderTypeAsync(request.Type);
         var debitedValue  = discount?.Apply(originalValue) ?? originalValue;
 
