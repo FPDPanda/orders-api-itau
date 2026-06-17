@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using Xunit;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Requests;
@@ -7,10 +8,28 @@ namespace OrdersApi.Tests.Controllers;
 
 public class RequestValidationTests
 {
+    // Validates against constructor parameter attributes — the same place ASP.NET Core
+    // model binding reads validation metadata for record primary constructors.
     private static IList<ValidationResult> Validate(object model)
     {
         var results = new List<ValidationResult>();
-        Validator.TryValidateObject(model, new ValidationContext(model), results, validateAllProperties: true);
+        var ctor = model.GetType().GetConstructors().First();
+
+        foreach (var param in ctor.GetParameters())
+        {
+            var prop = model.GetType().GetProperty(param.Name!,
+                BindingFlags.Public | BindingFlags.Instance);
+            if (prop is null) continue;
+
+            var value = prop.GetValue(model);
+            foreach (var attr in param.GetCustomAttributes<ValidationAttribute>())
+            {
+                var ctx = new ValidationContext(model) { MemberName = param.Name };
+                if (!attr.IsValid(value))
+                    results.Add(new ValidationResult(attr.FormatErrorMessage(param.Name!)));
+            }
+        }
+
         return results;
     }
 

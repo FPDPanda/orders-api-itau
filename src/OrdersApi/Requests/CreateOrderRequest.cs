@@ -5,9 +5,9 @@ namespace OrdersApi.Requests;
 
 public record CreateOrderRequest(
     OrderType Type,
-    [property: Required]
-    [property: MinLength(1, ErrorMessage = "At least one product is required.")]
+    [Required]
+    [MinLength(1, ErrorMessage = "At least one product is required.")]
     IReadOnlyList<Guid> ProductIds,
-    [property: Required]
+    [Required]
     string User,
     string TrackingURL);
