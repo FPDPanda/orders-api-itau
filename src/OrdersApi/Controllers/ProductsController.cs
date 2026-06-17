@@ -21,6 +21,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
     {
         var command = new CreateProductCommand(
+            request.Name,
             request.ImageURL,
             request.Description,
             request.Price);
@@ -44,6 +45,7 @@ public class ProductsController : ControllerBase
     {
         var product = await _mediator.Send(new UpdateProductCommand(
             productId,
+            request.Name,
             request.ImageURL,
             request.Description,
             request.Price));
@@ -66,6 +68,7 @@ public class ProductsController : ControllerBase
 }
 
 public record CreateProductRequest(
+    string Name,
     string ImageURL,
     string Description,
     decimal Price);

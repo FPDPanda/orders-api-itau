@@ -158,6 +158,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | BL-06 | Discount logic is entirely client-side — no discount table, no rules per `OrderType`, no server-side calculation | `CreateOrderCommand`, `CreateOrderHandler` | High | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/10 |
 | BL-07 | No quantity on order line items — `Products` is a flat list of IDs, impossible to order 2 units of the same product | `Order.cs`, `OrderRepository` | High | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/11 |
 | BL-08 | No price snapshot on order line items — updating a product price retroactively changes historical order totals | `Order.cs`, `OrderRepository` | High | | |
+| BL-17 | `Product` has no `Name` field — `Description` was used as both display name and item description, conflating two distinct concerns | `Product.cs`, `ProductsController`, `CreateProductCommand`, `UpdateProductCommand` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/11 |
 | BL-09 | `User` is a free-text string with no validation against an identity system and can be spoofed | `Order.cs`, `CreateOrderRequest` | High | | |
 | BL-10 | No input validation anywhere — negative prices, empty strings, and out-of-range decimals are accepted silently | All request records | High | | |
 | BL-11 | Deleting a product sets `OrderId` to null on all related products but leaves the order total incorrect | `ProductRepository`, `OrdersDbContext` | High | | |

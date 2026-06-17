@@ -67,16 +67,18 @@ public class ProductRepositoryTests
         await using var context = CreateContext();
         var repo = new ProductRepository(context);
 
-        var created = await repo.CreateAsync(new Product { Description = "Old", Price = 10m, ImageURL = "old.png" });
+        var created = await repo.CreateAsync(new Product { Name = "Old Cap", Description = "Old", Price = 10m, ImageURL = "old.png" });
 
         var result = await repo.UpdateAsync(created.Id, new Product
         {
+            Name        = "New Cap",
             Description = "New",
-            Price = 99m,
-            ImageURL = "new.png"
+            Price       = 99m,
+            ImageURL    = "new.png"
         });
 
         Assert.NotNull(result);
+        Assert.Equal("New Cap", result.Name);
         Assert.Equal("New", result.Description);
         Assert.Equal(99m, result.Price);
         Assert.Equal("new.png", result.ImageURL);

@@ -22,7 +22,7 @@ public class ProductsControllerTests
     public async Task CreateProduct_ShouldReturnCreatedAtAction()
     {
         var product = new Product { Id = Guid.NewGuid() };
-        var request = new CreateProductRequest("https://img.com/a.png", "Blue T-Shirt", 49.90m);
+        var request = new CreateProductRequest("Blue T-Shirt", "https://img.com/a.png", "Cotton t-shirt, size M", 49.90m);
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<CreateProductCommand>(), It.IsAny<CancellationToken>()))
@@ -68,7 +68,7 @@ public class ProductsControllerTests
     {
         var productId = Guid.NewGuid();
         var updated = new Product { Id = productId };
-        var request = new CreateProductRequest("url", "desc", 10m);
+        var request = new CreateProductRequest("Sneaker", "url", "desc", 10m);
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()))
@@ -87,7 +87,7 @@ public class ProductsControllerTests
             .Setup(m => m.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
-        var result = await _controller.UpdateProduct(Guid.NewGuid(), new CreateProductRequest("url", "desc", 10m));
+        var result = await _controller.UpdateProduct(Guid.NewGuid(), new CreateProductRequest("Cap", "url", "desc", 10m));
 
         Assert.IsType<NotFoundResult>(result);
     }
