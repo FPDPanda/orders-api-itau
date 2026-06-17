@@ -6,6 +6,7 @@ using OrdersApi.Controllers;
 using OrdersApi.Domain.Models;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Products;
+using OrdersApi.Requests;
 
 namespace OrdersApi.Tests.Controllers;
 

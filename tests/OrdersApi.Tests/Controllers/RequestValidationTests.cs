@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Xunit;
-using OrdersApi.Controllers;
 using OrdersApi.Domain.Enums;
+using OrdersApi.Requests;
 
 namespace OrdersApi.Tests.Controllers;
 

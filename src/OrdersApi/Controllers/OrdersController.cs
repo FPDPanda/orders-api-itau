@@ -1,10 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OrdersApi.Domain.Enums;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Orders;
+using OrdersApi.Requests;
 
 namespace OrdersApi.Controllers;
 
@@ -94,14 +93,3 @@ public class OrdersController : ControllerBase
         }
     }
 }
-
-public record CreateOrderRequest(
-    OrderType Type,
-    [property: Required]
-    [property: MinLength(1, ErrorMessage = "At least one product is required.")]
-    IReadOnlyList<Guid> ProductIds,
-    [property: Required]
-    string User,
-    string TrackingURL);
-
-public record UpdateOrderStatusRequest(OrderStatus Status);
