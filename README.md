@@ -42,7 +42,7 @@ tests/
 start-db.bat
 ```
 
-This starts the PostgreSQL Docker container, waits for it to be ready, and runs `V1__InitialCreate.sql` automatically. The migration is idempotent — safe to run multiple times.
+This starts the PostgreSQL Docker container, waits for it to be ready, and runs all migrations (V1–V5) automatically. Each migration is idempotent — safe to run multiple times.
 
 Make sure `appsettings.Development.json` has a matching connection string:
 
@@ -123,6 +123,14 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | PUT | `/products/{productId}` | Update a product |
 | DELETE | `/products/{productId}` | Delete a product |
 
+### Discounts
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/discounts` | List all active discounts |
+| POST | `/discounts` | Create a discount rule |
+| DELETE | `/discounts/{id}` | Deactivate a discount |
+
 ## Order Payload Example
 
 ```json
@@ -143,11 +151,27 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 
 ```json
 {
+  "name": "Bola de futebol",
   "imageURL": "https://www.guidgenerator.com",
-  "description": "Bola de futebol",
+  "description": "Bola de futebol oficial tamanho 5",
   "price": 20.0
 }
 ```
+
+## Discount Payload Example
+
+```json
+{
+  "orderType": "Express",
+  "discountType": "Percentage",
+  "rate": -0.10
+}
+```
+
+> `rate` is a signed multiplier — negative values are discounts, positive values are surcharges. `debitedValue` is clamped to zero if the discount exceeds the order total.
+
+**Order Types:** `Standard`, `Express`, `Subscription`
+**Discount Types:** `Percentage`, `Value`
 
 ---
 
