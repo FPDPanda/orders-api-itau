@@ -59,6 +59,7 @@ public class OrderRepository : IOrderRepository
             });
         }
 
+        await RecalculateTotalsAsync(order);
         await _context.SaveChangesAsync();
         return order;
     }
@@ -74,8 +75,18 @@ public class OrderRepository : IOrderRepository
         if (item is null) return false;
 
         order.Items.Remove(item);
+        await RecalculateTotalsAsync(order);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private async Task RecalculateTotalsAsync(Order order)
+    {
+        var originalValue = order.Items.Sum(i => i.UnitPrice * i.Quantity);
+        var discount = await _context.Discounts
+            .FirstOrDefaultAsync(d => d.OrderType == order.Type && d.Active);
+        order.OriginalValue = originalValue;
+        order.DebitedValue  = discount?.Apply(originalValue) ?? originalValue;
     }
 
     public async Task<Order?> UpdateStatusAsync(Guid orderId, OrderStatus status)
