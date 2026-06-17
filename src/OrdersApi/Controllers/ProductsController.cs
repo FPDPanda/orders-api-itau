@@ -43,7 +43,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{productId:guid}")]
-    public async Task<IActionResult> UpdateProduct(Guid productId, [FromBody] CreateProductRequest request)
+    public async Task<IActionResult> UpdateProduct(Guid productId, [FromBody] UpdateProductRequest request)
     {
         var product = await _mediator.Send(new UpdateProductCommand(
             productId,

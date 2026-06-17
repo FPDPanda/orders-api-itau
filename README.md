@@ -7,18 +7,21 @@ A simple .NET 8 Orders API with PostgreSQL (Docker) and MediatR.
 ```
 src/
 └── OrdersApi/
-    ├── Controllers/        # API Controllers (Orders, Products)
+    ├── Controllers/        # API Controllers (Orders, Products, Discounts)
     ├── Domain/
-    │   ├── Models/         # Domain entities (Order, Product)
-    │   └── Enums/          # Enumerations (OrderType, OrderStatus)
+    │   ├── Models/         # Domain entities (Order, OrderItem, Product, Discount)
+    │   └── Enums/          # Enumerations (OrderType, OrderStatus, DiscountType)
+    ├── Dtos/               # Response DTOs with static From() factory methods
+    ├── Requests/           # Request records (one per operation)
     ├── Queries/
     │   ├── Orders/         # Order commands, queries and handlers
-    │   └── Products/       # Product commands, queries and handlers
+    │   ├── Products/       # Product commands, queries and handlers
+    │   └── Discounts/      # Discount commands, queries and handlers
     ├── Repository/
     │   ├── Interfaces/     # Repository contracts
     │   └── Implementations/# EF Core repository implementations
     ├── Data/               # DbContext
-    └── Migrations/         # EF Core migrations
+    └── Data/Migrations/    # SQL migration scripts (V1–V5)
 tests/
 ```
 
@@ -173,9 +176,9 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 
 | # | Description | Affected Files | Severity | Fixed On | PR |
 |---|-------------|---------------|----------|----------|----|
-| AC-01 | Controllers return raw domain entities — no DTOs, exposes DB schema directly and makes contract changes breaking | All controllers and handlers | High | 2026-06-16 | |
-| AC-02 | `CreateOrderRequest` and `CreateProductRequest` are defined inside the controller files, not in their own files | `OrdersController.cs`, `ProductsController.cs` | Medium | 2026-06-16 | |
-| AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | | |
+| AC-01 | Controllers return raw domain entities — no DTOs, exposes DB schema directly and makes contract changes breaking | All controllers and handlers | High | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/15 |
+| AC-02 | `CreateOrderRequest` and `CreateProductRequest` are defined inside the controller files, not in their own files | `OrdersController.cs`, `ProductsController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/16 |
+| AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/17 |
 | AC-04 | All commands live under the `Queries` namespace and folder — commands and queries should be separated | `OrdersApi/Queries/` | Medium | | |
 | AC-05 | `PUT /orders/{id}/items/{itemId}` should be `POST` — `PUT` implies full replacement, not appending to a collection | `OrdersController.cs` | Medium | | |
 | AC-06 | Swagger UI is enabled for all environments — should be restricted to `Development` | `Program.cs` | Medium | | |

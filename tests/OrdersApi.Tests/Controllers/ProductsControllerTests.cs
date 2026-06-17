@@ -73,7 +73,7 @@ public class ProductsControllerTests
     {
         var productId = Guid.NewGuid();
         var updated = new Product { Id = productId, Name = "Sneaker", Price = 10m };
-        var request = new CreateProductRequest("Sneaker", "url", "desc", 10m);
+        var request = new UpdateProductRequest("Sneaker", "url", "desc", 10m);
 
         _mediatorMock
             .Setup(m => m.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()))
@@ -93,7 +93,7 @@ public class ProductsControllerTests
             .Setup(m => m.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
-        var result = await _controller.UpdateProduct(Guid.NewGuid(), new CreateProductRequest("Cap", "url", "desc", 10m));
+        var result = await _controller.UpdateProduct(Guid.NewGuid(), new UpdateProductRequest("Cap", "url", "desc", 10m));
 
         Assert.IsType<NotFoundResult>(result);
     }
