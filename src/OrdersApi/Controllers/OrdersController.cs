@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -95,7 +96,10 @@ public class OrdersController : ControllerBase
 
 public record CreateOrderRequest(
     OrderType Type,
+    [property: Required]
+    [property: MinLength(1, ErrorMessage = "At least one product is required.")]
     IReadOnlyList<Guid> ProductIds,
+    [property: Required]
     string User,
     string TrackingURL);
 
