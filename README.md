@@ -111,7 +111,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | POST | `/orders` | Create a new order |
 | GET | `/orders/{orderId}` | Get an order by ID |
 | PATCH | `/orders/{orderId}/status` | Update the status of an order |
-| PUT | `/orders/{orderId}/items/{itemId}` | Add a product to an order |
+| POST | `/orders/{orderId}/items/{itemId}` | Add a product to an order |
 | DELETE | `/orders/{orderId}/items/{itemId}` | Remove a product from an order |
 
 ### Products
@@ -184,7 +184,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | AC-02 | `CreateOrderRequest` and `CreateProductRequest` are defined inside the controller files, not in their own files | `OrdersController.cs`, `ProductsController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/16 |
 | AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/17 |
 | AC-04 | All commands live under the `Queries` namespace and folder — commands and queries should be separated | `OrdersApi/Queries/` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/18 |
-| AC-05 | `PUT /orders/{id}/items/{itemId}` should be `POST` — `PUT` implies full replacement, not appending to a collection | `OrdersController.cs` | Medium | | |
+| AC-05 | `PUT /orders/{id}/items/{itemId}` should be `POST` — `PUT` implies full replacement, not appending to a collection | `OrdersController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/19 |
 | AC-06 | Swagger UI is enabled for all environments — should be restricted to `Development` | `Program.cs` | Medium | | |
 | AC-07 | `CancellationToken` is accepted by all handlers but never forwarded to repository or EF Core calls | All handlers, all repository methods | Low | | |
 | AC-08 | No global exception handling middleware — unhandled exceptions return stack traces in the response | `Program.cs` | Low | | |
