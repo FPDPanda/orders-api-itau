@@ -42,7 +42,7 @@ tests/
 start-db.bat
 ```
 
-This starts the PostgreSQL Docker container, waits for it to be ready, and runs `V1__InitialCreate.sql` automatically. The migration is idempotent — safe to run multiple times.
+This starts the PostgreSQL Docker container, waits for it to be ready, and runs all migrations (V1–V5) automatically. Each migration is idempotent — safe to run multiple times.
 
 Make sure `appsettings.Development.json` has a matching connection string:
 
@@ -123,6 +123,14 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | PUT | `/products/{productId}` | Update a product |
 | DELETE | `/products/{productId}` | Delete a product |
 
+### Discounts
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/discounts` | List all active discounts |
+| POST | `/discounts` | Create a discount rule |
+| DELETE | `/discounts/{id}` | Deactivate a discount |
+
 ## Order Payload Example
 
 ```json
@@ -143,11 +151,27 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 
 ```json
 {
+  "name": "Bola de futebol",
   "imageURL": "https://www.guidgenerator.com",
-  "description": "Bola de futebol",
+  "description": "Bola de futebol oficial tamanho 5",
   "price": 20.0
 }
 ```
+
+## Discount Payload Example
+
+```json
+{
+  "orderType": "Express",
+  "discountType": "Percentage",
+  "rate": -0.10
+}
+```
+
+> `rate` is a signed multiplier — negative values are discounts, positive values are surcharges. `debitedValue` is clamped to zero if the discount exceeds the order total.
+
+**Order Types:** `Standard`, `Express`, `Subscription`
+**Discount Types:** `Percentage`, `Value`
 
 ---
 
@@ -185,7 +209,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 | AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/17 |
 | AC-04 | All commands live under the `Queries` namespace and folder — commands and queries should be separated | `OrdersApi/Queries/` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/18 |
 | AC-05 | `PUT /orders/{id}/items/{itemId}` should be `POST` — `PUT` implies full replacement, not appending to a collection | `OrdersController.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/19 |
-| AC-06 | Swagger UI is enabled for all environments — should be restricted to `Development` | `Program.cs` | Medium | | |
+| AC-06 | Swagger UI is enabled for all environments — should be restricted to `Development` | `Program.cs` | Medium | 2026-06-16 | https://github.com/FPDPanda/orders-api-itau/pull/20 |
 | AC-07 | `CancellationToken` is accepted by all handlers but never forwarded to repository or EF Core calls | All handlers, all repository methods | Low | | |
 | AC-08 | No global exception handling middleware — unhandled exceptions return stack traces in the response | `Program.cs` | Low | | |
 | AC-09 | No structured logging — no `ILogger` usage anywhere in handlers or repositories | All handlers, all repositories | Low | | |
