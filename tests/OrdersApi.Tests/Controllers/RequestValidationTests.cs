@@ -76,4 +76,46 @@ public class RequestValidationTests
         var request = new CreateProductRequest("Sneaker", "https://img.com", "desc", -1m);
         Assert.NotEmpty(Validate(request));
     }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldPassValidation_WhenValid()
+    {
+        var request = new UpdateProductRequest("Sneaker", "https://img.com/sneaker.jpg", "A nice sneaker", 99.99m);
+        Assert.Empty(Validate(request));
+    }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldFailValidation_WhenNameIsEmpty()
+    {
+        var request = new UpdateProductRequest("", "https://img.com", "desc", 10m);
+        Assert.NotEmpty(Validate(request));
+    }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldFailValidation_WhenImageURLIsEmpty()
+    {
+        var request = new UpdateProductRequest("Sneaker", "", "desc", 10m);
+        Assert.NotEmpty(Validate(request));
+    }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldFailValidation_WhenDescriptionIsEmpty()
+    {
+        var request = new UpdateProductRequest("Sneaker", "https://img.com", "", 10m);
+        Assert.NotEmpty(Validate(request));
+    }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldFailValidation_WhenPriceIsZero()
+    {
+        var request = new UpdateProductRequest("Sneaker", "https://img.com", "desc", 0m);
+        Assert.NotEmpty(Validate(request));
+    }
+
+    [Fact]
+    public void UpdateProductRequest_ShouldFailValidation_WhenPriceIsNegative()
+    {
+        var request = new UpdateProductRequest("Sneaker", "https://img.com", "desc", -1m);
+        Assert.NotEmpty(Validate(request));
+    }
 }

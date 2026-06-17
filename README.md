@@ -175,7 +175,7 @@ This runs all unit tests, generates an HTML coverage report under `coverage/repo
 |---|-------------|---------------|----------|----------|----|
 | AC-01 | Controllers return raw domain entities — no DTOs, exposes DB schema directly and makes contract changes breaking | All controllers and handlers | High | 2026-06-16 | |
 | AC-02 | `CreateOrderRequest` and `CreateProductRequest` are defined inside the controller files, not in their own files | `OrdersController.cs`, `ProductsController.cs` | Medium | 2026-06-16 | |
-| AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | | |
+| AC-03 | `UpdateProduct` reuses `CreateProductRequest` — semantically wrong, a create and update request are different contracts | `ProductsController.cs` | Medium | 2026-06-16 | |
 | AC-04 | All commands live under the `Queries` namespace and folder — commands and queries should be separated | `OrdersApi/Queries/` | Medium | | |
 | AC-05 | `PUT /orders/{id}/items/{itemId}` should be `POST` — `PUT` implies full replacement, not appending to a collection | `OrdersController.cs` | Medium | | |
 | AC-06 | Swagger UI is enabled for all environments — should be restricted to `Development` | `Program.cs` | Medium | | |
