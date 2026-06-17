@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrdersApi.Commands.Discounts;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Discounts;
 using OrdersApi.Requests;

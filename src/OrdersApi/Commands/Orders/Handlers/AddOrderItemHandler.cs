@@ -2,7 +2,7 @@ using MediatR;
 using OrdersApi.Domain.Models;
 using OrdersApi.Repository.Interfaces;
 
-namespace OrdersApi.Queries.Orders.Handlers;
+namespace OrdersApi.Commands.Orders.Handlers;
 
 public class AddOrderItemHandler : IRequestHandler<AddOrderItemCommand, Order?>
 {

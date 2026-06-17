@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace OrdersApi.Queries.Discounts;
+namespace OrdersApi.Commands.Discounts;
 
 public record DeactivateDiscountCommand(Guid Id) : IRequest<bool>;

@@ -1,7 +1,7 @@
 using MediatR;
 using OrdersApi.Repository.Interfaces;
 
-namespace OrdersApi.Queries.Discounts.Handlers;
+namespace OrdersApi.Commands.Discounts.Handlers;
 
 public class DeactivateDiscountHandler : IRequestHandler<DeactivateDiscountCommand, bool>
 {

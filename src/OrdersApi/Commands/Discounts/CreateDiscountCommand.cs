@@ -2,7 +2,7 @@ using MediatR;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
 
-namespace OrdersApi.Queries.Discounts;
+namespace OrdersApi.Commands.Discounts;
 
 public record CreateDiscountCommand(
     OrderType OrderType,

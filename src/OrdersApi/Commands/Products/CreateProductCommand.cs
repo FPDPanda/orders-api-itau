@@ -1,7 +1,7 @@
 using MediatR;
 using OrdersApi.Domain.Models;
 
-namespace OrdersApi.Queries.Products;
+namespace OrdersApi.Commands.Products;
 
 public record CreateProductCommand(
     string Name,

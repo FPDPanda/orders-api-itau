@@ -1,7 +1,7 @@
 using Moq;
 using Xunit;
-using OrdersApi.Queries.Products;
-using OrdersApi.Queries.Products.Handlers;
+using OrdersApi.Commands.Products;
+using OrdersApi.Commands.Products.Handlers;
 using OrdersApi.Repository.Interfaces;
 
 namespace OrdersApi.Tests.Handlers;

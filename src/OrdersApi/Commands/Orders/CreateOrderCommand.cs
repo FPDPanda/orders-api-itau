@@ -1,7 +1,7 @@
 using MediatR;
 using OrdersApi.Domain.Models;
 
-namespace OrdersApi.Queries.Orders;
+namespace OrdersApi.Commands.Orders;
 
 public record CreateOrderCommand(
     OrdersApi.Domain.Enums.OrderType Type,
