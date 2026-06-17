@@ -228,6 +228,104 @@ public class OrderRepositoryTests
     }
 
     [Fact]
+    public async Task AddItemAsync_ShouldRecalculateOriginalValue_WhenNewItemAdded()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var created = await repo.CreateAsync(NewOrder());
+        var product  = new Product { Id = Guid.NewGuid(), Description = "Shirt", Price = 60m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var result = await repo.AddItemAsync(created.Id, product.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(60m, result.OriginalValue);
+        Assert.Equal(60m, result.DebitedValue);
+    }
+
+    [Fact]
+    public async Task AddItemAsync_ShouldRecalculateOriginalValue_WhenQuantityIncremented()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var product = new Product { Id = Guid.NewGuid(), Description = "Cap", Price = 30m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var order = NewOrder();
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 1, UnitPrice = 30m });
+        var created = await repo.CreateAsync(order);
+
+        var result = await repo.AddItemAsync(created.Id, product.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(60m, result.OriginalValue);
+        Assert.Equal(60m, result.DebitedValue);
+    }
+
+    [Fact]
+    public async Task RemoveItemAsync_ShouldRecalculateOriginalValue_WhenItemRemoved()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var product = new Product { Id = Guid.NewGuid(), Description = "Cap", Price = 25m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var order = NewOrder();
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 2, UnitPrice = 25m });
+        var created = await repo.CreateAsync(order);
+
+        await repo.RemoveItemAsync(created.Id, product.Id);
+        var updated = await repo.GetByIdAsync(created.Id);
+
+        Assert.NotNull(updated);
+        Assert.Equal(0m, updated.OriginalValue);
+        Assert.Equal(0m, updated.DebitedValue);
+    }
+
+    [Fact]
+    public async Task AddItemAsync_ShouldApplyActiveDiscount_WhenRecalculating()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        context.Discounts.Add(new Discount
+        {
+            Id           = Guid.NewGuid(),
+            OrderType    = OrderType.Subscription,
+            DiscountType = DiscountType.Percentage,
+            Rate         = -0.10m,
+            Active       = true
+        });
+
+        var order = new Order
+        {
+            Type          = OrderType.Subscription,
+            OriginalValue = 0m,
+            DebitedValue  = 0m,
+            User          = "user@test.com",
+            Status        = OrderStatus.New,
+            TrackingURL   = ""
+        };
+        var created = await repo.CreateAsync(order);
+
+        var product = new Product { Id = Guid.NewGuid(), Description = "Shirt", Price = 100m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var result = await repo.AddItemAsync(created.Id, product.Id);
+
+        Assert.NotNull(result);
+        Assert.Equal(100m, result.OriginalValue);
+        Assert.Equal(90m,  result.DebitedValue);
+    }
+
+    [Fact]
     public async Task UpdateStatusAsync_ShouldUpdateStatus_WhenOrderExists()
     {
         await using var context = CreateContext();
