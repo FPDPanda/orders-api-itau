@@ -17,12 +17,12 @@ public class OrderRepositoryTests
 
     private static Order NewOrder() => new()
     {
-        Type = OrderType.Standard,
+        Type          = OrderType.Standard,
         OriginalValue = 100m,
-        DebitedValue = 100m,
-        User = "user@test.com",
-        Status = OrderStatus.New,
-        TrackingURL = "https://tracking.com"
+        DebitedValue  = 100m,
+        User          = "user@test.com",
+        Status        = OrderStatus.New,
+        TrackingURL   = "https://tracking.com"
     };
 
     [Fact]
@@ -55,15 +55,14 @@ public class OrderRepositoryTests
         var repo = new OrderRepository(context);
 
         var created = await repo.CreateAsync(NewOrder());
-
-        var result = await repo.GetByIdAsync(created.Id);
+        var result  = await repo.GetByIdAsync(created.Id);
 
         Assert.NotNull(result);
         Assert.Equal(created.Id, result.Id);
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldIncludeProducts()
+    public async Task GetByIdAsync_ShouldIncludeItemsWithProducts()
     {
         await using var context = CreateContext();
         var repo = new OrderRepository(context);
@@ -73,13 +72,15 @@ public class OrderRepositoryTests
         await context.SaveChangesAsync();
 
         var order = NewOrder();
-        order.Products.Add(product);
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 2 });
         var created = await repo.CreateAsync(order);
 
         var result = await repo.GetByIdAsync(created.Id);
 
         Assert.NotNull(result);
-        Assert.Single(result.Products);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Items[0].Quantity);
+        Assert.Equal(product.Id, result.Items[0].ProductId);
     }
 
     [Fact]
@@ -94,7 +95,7 @@ public class OrderRepositoryTests
     }
 
     [Fact]
-    public async Task AddItemAsync_ShouldAddProductToOrder()
+    public async Task AddItemAsync_ShouldCreateNewOrderItem_WhenProductNotYetInOrder()
     {
         await using var context = CreateContext();
         var repo = new OrderRepository(context);
@@ -107,8 +108,30 @@ public class OrderRepositoryTests
         var result = await repo.AddItemAsync(created.Id, product.Id);
 
         Assert.NotNull(result);
-        Assert.Single(result.Products);
-        Assert.Equal(product.Id, result.Products[0].Id);
+        Assert.Single(result.Items);
+        Assert.Equal(product.Id, result.Items[0].ProductId);
+        Assert.Equal(1, result.Items[0].Quantity);
+    }
+
+    [Fact]
+    public async Task AddItemAsync_ShouldIncrementQuantity_WhenProductAlreadyInOrder()
+    {
+        await using var context = CreateContext();
+        var repo = new OrderRepository(context);
+
+        var product = new Product { Id = Guid.NewGuid(), Description = "Cap", Price = 25m };
+        context.Products.Add(product);
+        await context.SaveChangesAsync();
+
+        var order = NewOrder();
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 1 });
+        var created = await repo.CreateAsync(order);
+
+        var result = await repo.AddItemAsync(created.Id, product.Id);
+
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Items[0].Quantity);
     }
 
     [Fact]
@@ -136,7 +159,7 @@ public class OrderRepositoryTests
     }
 
     [Fact]
-    public async Task RemoveItemAsync_ShouldRemoveProductAndReturnTrue()
+    public async Task RemoveItemAsync_ShouldRemoveOrderItemAndReturnTrue()
     {
         await using var context = CreateContext();
         var repo = new OrderRepository(context);
@@ -146,14 +169,14 @@ public class OrderRepositoryTests
         await context.SaveChangesAsync();
 
         var order = NewOrder();
-        order.Products.Add(product);
+        order.Items.Add(new OrderItem { ProductId = product.Id, Product = product, Quantity = 3 });
         var created = await repo.CreateAsync(order);
 
-        var result = await repo.RemoveItemAsync(created.Id, product.Id);
+        var result  = await repo.RemoveItemAsync(created.Id, product.Id);
+        var updated = await repo.GetByIdAsync(created.Id);
 
         Assert.True(result);
-        var updated = await repo.GetByIdAsync(created.Id);
-        Assert.Empty(updated!.Products);
+        Assert.Empty(updated!.Items);
     }
 
     [Fact]
@@ -187,8 +210,7 @@ public class OrderRepositoryTests
         var repo = new OrderRepository(context);
 
         var created = await repo.CreateAsync(NewOrder());
-
-        var result = await repo.UpdateStatusAsync(created.Id, OrderStatus.Confirmed);
+        var result  = await repo.UpdateStatusAsync(created.Id, OrderStatus.Confirmed);
 
         Assert.NotNull(result);
         Assert.Equal(OrderStatus.Confirmed, result.Status);

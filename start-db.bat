@@ -17,4 +17,6 @@ if errorlevel 1 (
 echo Running migrations...
 docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V1__InitialCreate.sql
 docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V2__AddDiscounts.sql
+docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V3__AddOrderItems.sql
+docker exec -i orders-postgres psql -U postgres -d ordersdb < src\OrdersApi\Data\Migrations\V4__AddProductName.sql
 echo Done.

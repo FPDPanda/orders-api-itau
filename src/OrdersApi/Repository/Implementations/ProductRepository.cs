@@ -40,9 +40,10 @@ public class ProductRepository : IProductRepository
         if (existing is null)
             return null;
 
-        existing.ImageURL = product.ImageURL;
+        existing.Name        = product.Name;
+        existing.ImageURL    = product.ImageURL;
         existing.Description = product.Description;
-        existing.Price = product.Price;
+        existing.Price       = product.Price;
 
         await _context.SaveChangesAsync();
         return existing;

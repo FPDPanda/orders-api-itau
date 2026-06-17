@@ -17,9 +17,10 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Produc
     {
         var product = new Product
         {
-            ImageURL = request.ImageURL,
+            Name        = request.Name,
+            ImageURL    = request.ImageURL,
             Description = request.Description,
-            Price = request.Price
+            Price       = request.Price
         };
 
         return await _repository.UpdateAsync(request.ProductId, product);

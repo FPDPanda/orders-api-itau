@@ -32,4 +32,11 @@ public class DiscountTests
         var discount = new Discount { DiscountType = DiscountType.Value, Rate = -9999.99m };
         Assert.Equal(0, discount.Apply(100m));
     }
+
+    [Fact]
+    public void Apply_ShouldReturnOriginalValue_ForUnknownDiscountType()
+    {
+        var discount = new Discount { DiscountType = (DiscountType)99, Rate = 0.50m };
+        Assert.Equal(100m, discount.Apply(100m));
+    }
 }

@@ -20,7 +20,7 @@ public class CreateProductHandlerTests
     [Fact]
     public async Task Handle_ShouldMapCommandFieldsToProduct()
     {
-        var command = new CreateProductCommand("https://img.com/a.png", "Blue T-Shirt", 49.90m);
+        var command = new CreateProductCommand("Blue T-Shirt", "https://img.com/a.png", "Cotton t-shirt, size M", 49.90m);
 
         _repositoryMock
             .Setup(r => r.CreateAsync(It.IsAny<Product>()))
@@ -28,15 +28,16 @@ public class CreateProductHandlerTests
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
+        Assert.Equal("Blue T-Shirt", result.Name);
         Assert.Equal("https://img.com/a.png", result.ImageURL);
-        Assert.Equal("Blue T-Shirt", result.Description);
+        Assert.Equal("Cotton t-shirt, size M", result.Description);
         Assert.Equal(49.90m, result.Price);
     }
 
     [Fact]
     public async Task Handle_ShouldCallRepositoryCreateOnce()
     {
-        var command = new CreateProductCommand("url", "desc", 10m);
+        var command = new CreateProductCommand("Sneaker", "url", "desc", 10m);
 
         _repositoryMock
             .Setup(r => r.CreateAsync(It.IsAny<Product>()))
@@ -51,7 +52,7 @@ public class CreateProductHandlerTests
     public async Task Handle_ShouldReturnProductFromRepository()
     {
         var expected = new Product { Id = Guid.NewGuid() };
-        var command = new CreateProductCommand("url", "desc", 10m);
+        var command = new CreateProductCommand("Cap", "url", "desc", 10m);
 
         _repositoryMock
             .Setup(r => r.CreateAsync(It.IsAny<Product>()))

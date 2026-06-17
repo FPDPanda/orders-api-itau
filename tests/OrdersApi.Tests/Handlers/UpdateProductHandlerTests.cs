@@ -21,28 +21,29 @@ public class UpdateProductHandlerTests
     public async Task Handle_ShouldPassUpdatedFieldsToRepository()
     {
         var productId = Guid.NewGuid();
-        var command = new UpdateProductCommand(productId, "https://new.img", "New desc", 99m);
+        var command = new UpdateProductCommand(productId, "New Sneaker", "https://new.img", "New desc", 99m);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(productId, It.IsAny<Product>()))
             .ReturnsAsync((Guid _, Product p) => p);
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        await _handler.Handle(command, CancellationToken.None);
 
         _repositoryMock.Verify(r => r.UpdateAsync(
             productId,
             It.Is<Product>(p =>
-                p.ImageURL == "https://new.img" &&
-                p.Description == "New desc" &&
-                p.Price == 99m)), Times.Once);
+                p.Name        == "New Sneaker"    &&
+                p.ImageURL    == "https://new.img" &&
+                p.Description == "New desc"        &&
+                p.Price       == 99m)), Times.Once);
     }
 
     [Fact]
     public async Task Handle_ShouldReturnUpdatedProduct_WhenFound()
     {
         var productId = Guid.NewGuid();
-        var updated = new Product { Id = productId, Description = "Updated" };
-        var command = new UpdateProductCommand(productId, "url", "Updated", 10m);
+        var updated   = new Product { Id = productId, Name = "Updated Cap", Description = "Updated" };
+        var command   = new UpdateProductCommand(productId, "Updated Cap", "url", "Updated", 10m);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(productId, It.IsAny<Product>()))
@@ -51,6 +52,7 @@ public class UpdateProductHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
+        Assert.Equal("Updated Cap", result.Name);
         Assert.Equal("Updated", result.Description);
     }
 
@@ -58,7 +60,7 @@ public class UpdateProductHandlerTests
     public async Task Handle_ShouldReturnNull_WhenProductNotFound()
     {
         var productId = Guid.NewGuid();
-        var command = new UpdateProductCommand(productId, "url", "desc", 10m);
+        var command   = new UpdateProductCommand(productId, "name", "url", "desc", 10m);
 
         _repositoryMock
             .Setup(r => r.UpdateAsync(productId, It.IsAny<Product>()))

@@ -27,42 +27,52 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetByIdAsync(Guid orderId)
     {
         return await _context.Orders
-            .Include(o => o.Products)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
             .FirstOrDefaultAsync(o => o.Id == orderId);
     }
 
-    public async Task<Order?> AddItemAsync(Guid orderId, Guid itemId)
+    public async Task<Order?> AddItemAsync(Guid orderId, Guid productId)
     {
         var order = await _context.Orders
-            .Include(o => o.Products)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
             .FirstOrDefaultAsync(o => o.Id == orderId);
-        if (order is null)
-            return null;
+        if (order is null) return null;
 
-        var product = await _context.Products.FindAsync(itemId);
-        if (product is null)
-            return null;
+        var product = await _context.Products.FindAsync(productId);
+        if (product is null) return null;
 
-        order.Products.Add(product);
+        var existing = order.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (existing is not null)
+        {
+            existing.Quantity++;
+        }
+        else
+        {
+            order.Items.Add(new OrderItem
+            {
+                ProductId = productId,
+                Product   = product,
+                Quantity  = 1
+            });
+        }
+
         await _context.SaveChangesAsync();
-
         return order;
     }
 
-    public async Task<bool> RemoveItemAsync(Guid orderId, Guid itemId)
+    public async Task<bool> RemoveItemAsync(Guid orderId, Guid productId)
     {
         var order = await _context.Orders
-            .Include(o => o.Products)
+            .Include(o => o.Items)
             .FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order is null) return false;
 
-        if (order is null)
-            return false;
+        var item = order.Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item is null) return false;
 
-        var product = order.Products.FirstOrDefault(p => p.Id == itemId);
-        if (product is null)
-            return false;
-
-        order.Products.Remove(product);
+        order.Items.Remove(item);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -70,11 +80,10 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> UpdateStatusAsync(Guid orderId, OrderStatus status)
     {
         var order = await _context.Orders
-            .Include(o => o.Products)
+            .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
             .FirstOrDefaultAsync(o => o.Id == orderId);
-
-        if (order is null)
-            return null;
+        if (order is null) return null;
 
         order.Status = status;
         await _context.SaveChangesAsync();
