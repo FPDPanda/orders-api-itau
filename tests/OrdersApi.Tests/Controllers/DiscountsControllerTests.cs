@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
+using OrdersApi.Commands.Discounts;
 using OrdersApi.Controllers;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;

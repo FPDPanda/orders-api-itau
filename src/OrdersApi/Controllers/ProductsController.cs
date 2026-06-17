@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrdersApi.Commands.Products;
 using OrdersApi.Dtos;
 using OrdersApi.Queries.Products;
 using OrdersApi.Requests;

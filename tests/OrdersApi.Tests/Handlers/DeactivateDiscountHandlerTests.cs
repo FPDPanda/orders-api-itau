@@ -1,7 +1,7 @@
 using Moq;
 using Xunit;
-using OrdersApi.Queries.Discounts;
-using OrdersApi.Queries.Discounts.Handlers;
+using OrdersApi.Commands.Discounts;
+using OrdersApi.Commands.Discounts.Handlers;
 using OrdersApi.Repository.Interfaces;
 
 namespace OrdersApi.Tests.Handlers;

@@ -1,7 +1,7 @@
 using MediatR;
 using OrdersApi.Repository.Interfaces;
 
-namespace OrdersApi.Queries.Orders.Handlers;
+namespace OrdersApi.Commands.Orders.Handlers;
 
 public class RemoveOrderItemHandler : IRequestHandler<RemoveOrderItemCommand, bool>
 {

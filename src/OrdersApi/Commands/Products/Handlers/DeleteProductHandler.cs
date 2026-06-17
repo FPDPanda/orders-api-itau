@@ -1,7 +1,7 @@
 using MediatR;
 using OrdersApi.Repository.Interfaces;
 
-namespace OrdersApi.Queries.Products.Handlers;
+namespace OrdersApi.Commands.Products.Handlers;
 
 public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, bool>
 {

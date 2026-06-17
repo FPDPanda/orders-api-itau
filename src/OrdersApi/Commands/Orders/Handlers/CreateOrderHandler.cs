@@ -3,7 +3,7 @@ using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
 using OrdersApi.Repository.Interfaces;
 
-namespace OrdersApi.Queries.Orders.Handlers;
+namespace OrdersApi.Commands.Orders.Handlers;
 
 public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
 {

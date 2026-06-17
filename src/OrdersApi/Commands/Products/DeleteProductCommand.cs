@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace OrdersApi.Queries.Products;
+namespace OrdersApi.Commands.Products;
 
 public record DeleteProductCommand(Guid ProductId) : IRequest<bool>;

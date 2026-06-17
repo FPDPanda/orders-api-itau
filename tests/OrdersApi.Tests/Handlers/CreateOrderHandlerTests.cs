@@ -2,8 +2,8 @@ using Moq;
 using Xunit;
 using OrdersApi.Domain.Enums;
 using OrdersApi.Domain.Models;
-using OrdersApi.Queries.Orders;
-using OrdersApi.Queries.Orders.Handlers;
+using OrdersApi.Commands.Orders;
+using OrdersApi.Commands.Orders.Handlers;
 using OrdersApi.Repository.Interfaces;
 
 namespace OrdersApi.Tests.Handlers;
